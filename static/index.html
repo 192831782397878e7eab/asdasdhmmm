@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Private Image Uploader</title>
+  <style>
+    body {
+      background: #1e1e1e;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    h1 { margin-bottom: 20px; }
+    #drop-zone {
+      width: 400px;
+      height: 200px;
+      border: 2px dashed #666;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 20px;
+      background: #2e2e2e;
+      transition: background 0.3s;
+    }
+    #drop-zone.hover {
+      background: #444;
+    }
+    #link {
+      margin-top: 20px;
+      word-break: break-all;
+    }
+    a {
+      color: #4fc3f7;
+    }
+  </style>
+</head>
+<body>
+  <h1>Drop Image to Upload</h1>
+  <div id="drop-zone">Drag & Drop your image here or click to select</div>
+  <div id="link"></div>
+  <input type="file" id="fileElem" accept="image/*" style="display:none">
+
+  <script>
+    const dropZone = document.getElementById('drop-zone');
+    const fileElem = document.getElementById('fileElem');
+    const linkBox = document.getElementById('link');
+
+    dropZone.addEventListener('click', () => fileElem.click());
+
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('hover');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.classList.remove('hover');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('hover');
+      const file = e.dataTransfer.files[0];
+      uploadFile(file);
+    });
+
+    fileElem.addEventListener('change', () => {
+      const file = fileElem.files[0];
+      uploadFile(file);
+    });
+
+    function uploadFile(file) {
+      if (!file) return;
+      const formData = new FormData();
+      formData.append('image', file);
+
+      fetch('/upload', {
+        method: 'POST',
+        body: formData
+      })
+      .then(res => res.json())
+      .then(data => {
+        linkBox.innerHTML = '✅ Image Uploaded: <a href="' + data.url + '" target="_blank">' + data.url + '</a>';
+      })
+      .catch(err => {
+        linkBox.textContent = '❌ Upload failed';
+        console.error(err);
+      });
+    }
+  </script>
+</body>
+</html>
