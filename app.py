@@ -7,7 +7,7 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 @app.route('/')
 def home():
-    return 'Welcome to your private image host.'
+    return send_from_directory('static', 'index.html')
 
 @app.route('/upload', methods=['POST'])
 def upload():
